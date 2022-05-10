@@ -1,18 +1,19 @@
 def add_time(start, duration,day_of_week=None):
     num_days = ""
+    day = ""
     init_time = convert_12_to_60(start)
     added_time = convert_12_to_60(duration)
     total_time = init_time + added_time
-    if added_time >= 1440:
+    if total_time >= 1440:
         if day_of_week:
             num_days = calculate_day(total_time,day_of_week)
-            return convert_60_to_12(total_time) + num_days
         else:
             num_days = calculate_day(total_time)
+        return convert_60_to_12(total_time) + num_days
     elif day_of_week:
-        day_of_week = day_of_week[0].upper() + day_of_week[1:].lower()    
+        day = ", " + day_of_week[0].upper() + day_of_week[1:].lower()    
     num_days = calculate_day(total_time)
-    return convert_60_to_12(total_time) + num_days
+    return convert_60_to_12(total_time) + day + num_days
 
 def calculate_day(total_time,days=None):
     days_of_week = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
@@ -22,14 +23,14 @@ def calculate_day(total_time,days=None):
         day_amt += 1
         total_time -= 1440
     if days:
-        days = days[0].upper() + days[1:]
+        days = days[0].upper() + days[1:].lower()
         index_of_days = days_of_week.index(days)
         for i in range(day_amt):
             index_of_days = index_of_days%7 + 1
-        day_str += f", {days_of_week[index_of_days]}"
-    elif day_amt == 1:
+        day_str += f", {days_of_week[index_of_days%7]}"
+    if day_amt == 1:
         day_str += " (next day)" 
-    elif day_amt > 1:
+    if day_amt > 1:
         day_str += f" ({day_amt} days later)"
     return day_str
 
@@ -69,6 +70,8 @@ def convert_60_to_24(minutes):
 
 def convert_24_to_12(time):
     hour, minutes = time
+    while hour >= 24:
+        hour -= 24
     AM_PM = "AM"
     if hour == 0:
         hour = 12
@@ -76,10 +79,16 @@ def convert_24_to_12(time):
         while hour-12 >= 0:
             hour -= 12
             AM_PM = "PM"
+            if hour == 0:
+                hour = 12
     if minutes < 9:
         minutes = "0" + str(minutes)
-    convertted_time = str(hour)+":"+minutes+" "+AM_PM 
+    convertted_time = str(hour)+":"+str(minutes)+" "+AM_PM 
     return convertted_time
 
 
-print(add_time("11:06 PM", "2:02"))
+print(add_time("11:40 AM", "0:25"))
+
+# expected to be 
+# 6:18 AM (20 days later)
+#result 6:18 PM (20 days later)
